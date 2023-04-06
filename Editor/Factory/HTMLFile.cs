@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -10,7 +11,26 @@ namespace Editor.Factory
 {
     internal class HTMLFile : EditorFile
     {
+        public HTMLFile() : base() { }
+
         public HTMLFile(string text) : base(text) { }
+
+        public override string Read(string path)
+        {
+            HtmlAgilityPack.HtmlDocument file = new HtmlAgilityPack.HtmlDocument();
+            file.Load(path);
+            // Select all <p> tags
+            HtmlNodeCollection pTags = file.DocumentNode.SelectNodes("//p");
+
+            StringBuilder sb = new StringBuilder();
+            // Loop through all <p> tags and do something with them
+            foreach (HtmlNode pTag in pTags)
+            {
+                sb.Append(pTag.InnerText).Append("\n");
+            }
+            Text = sb.ToString();
+            return Text;
+        }
 
         override public void Save(string path)
         {

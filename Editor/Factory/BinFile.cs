@@ -9,6 +9,8 @@ namespace Editor.Factory
 {
     internal class BinFile : EditorFile
     {
+        public BinFile() : base() { }
+
         public BinFile(string text) : base(text) { }
 
         override public void Save(string path)
@@ -19,6 +21,20 @@ namespace Editor.Factory
             {
                 bw.Write(Text);
             }
+        }
+
+        public override string Read(string path)
+        {
+            string text;
+            // Open a file stream and create a binary writer
+            using (FileStream fs = new FileStream(path, FileMode.Open))
+            using (StreamReader sr = new StreamReader(fs))
+            {
+                // Read the entire file as text
+                text = sr.ReadToEnd();
+            }
+            Text = text;
+            return Text;
         }
     }
 }

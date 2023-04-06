@@ -1,3 +1,4 @@
+using Editor.AbstractFactory;
 using Editor.Factory;
 using Editor.utils;
 using Editor.utils.eventtypes;
@@ -47,8 +48,8 @@ namespace Editor
             this.filePath = filePath;
             // get content
             string content = textEditor.Text;
-            // Get file from factory : content
-            // Save file : path
+            // Get file from factory
+            // Save file
             _factory.SaveFile(filePath, content);
 
             //System.IO.File.WriteAllText(this.filePath, this.textEditor.Text);
@@ -64,8 +65,6 @@ namespace Editor
                 string[] split = saveFileDialog.Filter.Split('|');
                 int index = saveFileDialog.FilterIndex;
                 string currentFilter = split[(index - 1) * 2] + "|" + split[(index - 1) * 2 + 1];
-                Debugger.Log(1, "main", currentFilter);
-
                 // get factory for given filter
                 _factory = SaveFilters.GetFactory(currentFilter);
                 // write file
@@ -114,7 +113,31 @@ namespace Editor
             {
                 this.SaveChanges();
                 this.filePath = this.openFileDialog.FileName;
-                string text = System.IO.File.ReadAllText(this.filePath);
+
+                // Get file extension
+                FileInfo fileInfo = new FileInfo(filePath);
+                string ext = fileInfo.Extension;
+                // Get factory
+                FileReader reader;
+                switch (ext)
+                {
+                    case ".txt":
+                        reader = new FileReader(new TextFileReader());
+                        break;
+                    case ".html":
+                        reader = new FileReader(new HTMLFileReader());
+                        break;
+                    case ".bin":
+                        reader = new FileReader(new BinFileReader());
+                        break;
+                    default:
+                        reader = new FileReader(new TextFileReader());
+                        break;
+                }
+
+                // Read file
+                string text = reader.ReadFile(filePath);
+                //string text = System.IO.File.ReadAllText(this.filePath);
                 this.textEditor.Text = text;
                 this.textChanged = false;
                 _previousText = text;
